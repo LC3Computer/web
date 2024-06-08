@@ -1,9 +1,7 @@
+import Home from "./Home";
+
 function App() {
-  return (
-    <div className="bg-slate-700">
-      <p className="text-red-200">hello world</p>
-    </div>
-  );
+  return <Home />;
 }
 
 export default App;
