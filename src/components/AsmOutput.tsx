@@ -1,10 +1,12 @@
+import { INSTRUCTIONS_LIST } from "../utility/assembler";
+
 function AsmOutput({ content }: { content: string }) {
   let codeArray = content.split("\n");
   codeArray = codeArray.map((l) => l.trim());
   let lineCount = 1;
 
   const prettify = (line: string) => {
-    if (instructions.some((ins) => line.startsWith(ins))) {
+    if (INSTRUCTIONS_LIST.some((ins) => line.startsWith(ins))) {
       return <span>{line}</span>;
     } else {
       //has label
@@ -45,31 +47,4 @@ function AsmOutput({ content }: { content: string }) {
     </div>
   );
 }
-const instructions = [
-  "ADD",
-  "AND",
-  "NOT",
-  "STR",
-  "LDR",
-  "JMP",
-  "RET",
-  "JSR",
-  "LD",
-  "LDI",
-  "LEA",
-  "ST",
-  "STI",
-  "BR",
-  "BRn",
-  "BRz",
-  "BRp",
-  "BRnz",
-  "BRnp",
-  "BRzp",
-  "BRnzp",
-  "ORG",
-  "END",
-  "HLT",
-  "HALT"
-];
 export default AsmOutput;

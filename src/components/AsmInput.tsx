@@ -1,7 +1,11 @@
 import { useRef, useState } from "react";
-import { assembler } from "../utility/assembler";
+import { MachineCodeType, assembler } from "../utility/assembler";
 import AsmOutput from "./AsmOutput";
-function AsmInput() {
+function AsmInput({
+  setMachineCode,
+}: {
+  setMachineCode: React.Dispatch<React.SetStateAction<MachineCodeType[]>>;
+}) {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [assemblyCode, setAssemblyCode] = useState("");
   const [showOutput, setShowOutput] = useState(false);
@@ -31,6 +35,7 @@ function AsmInput() {
       return;
     } else {
       const compiledCode = assembler(assemblyCode);
+      setMachineCode(compiledCode);
       setShowOutput(true);
     }
   };
