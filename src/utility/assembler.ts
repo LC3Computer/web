@@ -36,11 +36,8 @@ export function assembler(str: string): MachineCodeType[] {
         }
         if (line.startsWith("ORG")) {
             const newAddress = parseInt(line.replace(/\D/g, ''), 16);
-            if (newAddress >= currentAddress) {
                 currentAddress = newAddress;
-            } else {
-                throw new Error("ORG address cannot be lower than the current address.");
-            }
+            
         } else if (line.length > 0 && !line.startsWith("END")) {
             currentAddress++;
         }
@@ -53,11 +50,8 @@ export function assembler(str: string): MachineCodeType[] {
        
         if (line.startsWith("ORG")) {
             const newAddress = parseInt(line.replace(/\D/g, ''), 16);
-            if (newAddress >= currentAddress) {
-                currentAddress = newAddress;
-            } else {
-                throw new Error("ORG address cannot be lower than the current address.");
-            }
+              currentAddress = newAddress;
+        
         }else{
         if (line.startsWith("ADD")) {
             const instructionCode = processAdd(line, currentAddress);
@@ -115,7 +109,19 @@ export function assembler(str: string): MachineCodeType[] {
             const instructionCode = processRet(currentAddress);
             machineCode.push(instructionCode);
             currentAddress++;
-        }  
+        } else if (line.startsWith("DEC")) {
+            const instructionCode = processDec(line,currentAddress);
+            machineCode.push(instructionCode);
+            currentAddress++;
+        } else if (line.startsWith("HEX")) {
+            const instructionCode = processHex(line,currentAddress);
+            machineCode.push(instructionCode);
+            currentAddress++;
+        } else if (line.startsWith("HALT")|| line.startsWith("HLT")){
+            const instructionCode = processHlt(currentAddress);
+            machineCode.push(instructionCode);
+            currentAddress++;
+        }
         
     }
 
@@ -123,7 +129,9 @@ export function assembler(str: string): MachineCodeType[] {
 
     codeArray = codeArray.filter(line => !line.startsWith("ORG"));
     codeArray = codeArray.filter(line => !line.startsWith("END"));
-    // console.log(codeArray);
+    console.log(codeArray);
+    console.log(machineCode);
+
 
     return machineCode;
 }
@@ -459,4 +467,28 @@ function processJsr(instruction: string, currentAddress: number, labelAddressMap
     }
     
 }
+
+
+function processDec(instruction: string, currentAddress: number): MachineCodeType {
+    instruction = instruction.replace("DEC", "").trim();
+    const imm = parseInt(instruction, 10);
+     const content = (imm & 0xFFFF).toString(2).padStart(16, "0");
+     return { addr: currentAddress, content: content}
+}
+
+
+function processHex(instruction: string, currentAddress: number): MachineCodeType {
+    instruction = instruction.replace("HEX", "").trim();
+    const imm = parseInt(instruction, 16);
+     const content = (imm & 0xFFFF).toString(2).padStart(16, "0");
+     return { addr: currentAddress, content: content}
+}
+
+function processHlt(currentAddress: number): MachineCodeType {
+    
+    const content = "1101000000000000";
+    return { addr: currentAddress, content: content}
+}
+
+
 
