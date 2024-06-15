@@ -7,18 +7,18 @@ const initialComputerState = {
   Memory: [],
   CC: { N: 0, Z: 0, P: 0 },
   PC: 0,
-  IR: 0,
-  MDR: 0,
-  MAR: 0,
+  IR: "",
+  MDR: "",
+  MAR: "",
 };
 export type computerStateType = {
   Rs: number[];
   Memory: MachineCodeType[];
   CC: { N: number; Z: number; P: number };
   PC: number;
-  IR: number;
-  MDR: number;
-  MAR: number;
+  IR: string;
+  MDR: string;
+  MAR: string;
 };
 function MemoryTable({ machineCode }: { machineCode: MachineCodeType[] }) {
   useEffect(() => {

@@ -30,17 +30,43 @@ export function executeNext(
     (m) => m.addr === tempState.PC
   );
   const opCode = currentInstruction?.content.slice(0, 4) ?? "-1";
+
+  //updateing IR
+  tempState.IR = currentInstruction?.content ?? "";
+
+  //run command funciton
   mappingOpCode[opCode](tempState, currentInstruction?.content ?? "");
 
   setComputerState(tempState);
 }
 
-function binStrToNumber(str :string){
-if(str[0] == "0") return parseInt(str,2);
+function binStrToNumber(str: string) {
+  if (str[0] == "0") {
+    return parseInt(str, 2);
+  } else {
+    let firstOneSeen = false;
+    let complementStr = str;
+    for (let i = complementStr.length - 1; i >= 0; i--) {
+      if (!firstOneSeen) {
+        if (complementStr[i] == "0") continue;
+        else {
+          firstOneSeen = true;
+          continue;
+        }
+      }
+      if (firstOneSeen && complementStr[i] == "1") {
+        const tempArr = complementStr.split("");
+        tempArr[i] = "0";
+        complementStr = tempArr.join("");
+      } else if (firstOneSeen && str[i] == "0") {
+        const tempArr = complementStr.split("");
+        tempArr[i] = "1";
+        complementStr = tempArr.join("");
+      }
+    }
 
-const res = (~parseInt(str,2)) + 1;
-return res;
-
+    return -1 * parseInt(complementStr, 2);
+  }
 }
 
 function andCommand() {}
@@ -54,10 +80,13 @@ function ldCommand(tempState: computerStateType, command: string) {
   const registerNumber = parseInt(command.slice(4, 7), 2);
   if (registerNumber === 7)
     throw new Error("can not load to register R7 . it is reserved");
+
   const labelAddress = tempState.PC + parseInt(command.slice(7, 16), 2);
+  tempState.MAR = labelAddress.toString(2);
   const lablel = tempState.Memory.find((m) => m.addr === labelAddress);
   if (!lablel) throw new Error("lable not found");
-  
+
+  tempState.MDR = lablel.content;
   tempState.Rs[registerNumber] = binStrToNumber(lablel.content);
   tempState.PC++;
 }
