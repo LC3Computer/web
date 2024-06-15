@@ -10,6 +10,7 @@ const initialComputerState = {
   IR: "",
   MDR: "",
   MAR: "",
+  halted:false,
 };
 export type computerStateType = {
   Rs: number[];
@@ -19,6 +20,7 @@ export type computerStateType = {
   IR: string;
   MDR: string;
   MAR: string;
+  halted: boolean;
 };
 function MemoryTable({ machineCode }: { machineCode: MachineCodeType[] }) {
   useEffect(() => {
