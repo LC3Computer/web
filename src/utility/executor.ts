@@ -272,7 +272,7 @@ function brCommand(tempState: computerStateType, command: string) {
   if (!command) return;
 
   const conditionCodes = command.slice(4, 7);
-  const offset = parseInt(command.slice(7, 16), 2);
+  const offset = binStrToNumber(command.slice(7, 16));
 
   const n = conditionCodes[0] === '1';
   const z = conditionCodes[1] === '1';
