@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { MachineCodeType, assembler } from "../utility/assembler";
 import AsmOutput from "./AsmOutput";
+import toast from "react-hot-toast";
 function AsmInput({
   setMachineCode,
 }: {
@@ -34,9 +35,15 @@ function AsmInput({
       setShowOutput(false);
       return;
     } else {
-      const compiledCode = assembler(assemblyCode);
-      setMachineCode(compiledCode);
-      setShowOutput(true);
+      try {
+        const compiledCode = assembler(assemblyCode);
+        setMachineCode(compiledCode);
+        setShowOutput(true);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        }
+      }
     }
   };
 
