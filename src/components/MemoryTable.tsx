@@ -2,16 +2,17 @@ import { MachineCodeType } from "../utility/assembler";
 import { useEffect, useState } from "react";
 import { executeNext } from "../utility/executor";
 import Modal from "./Modal";
+import toast from "react-hot-toast";
 
 const initialComputerState = {
-  Rs: [0, 0, 0, 0, 0, 0, 0],
+  Rs: [0, 0, 0, 0, 0, 0, 0, 0],
   Memory: [],
   CC: { N: 0, Z: 0, P: 0 },
   PC: 0,
   IR: "",
   MDR: "",
   MAR: "",
-  halted:false,
+  halted: false,
 };
 export type computerStateType = {
   Rs: number[];
@@ -25,11 +26,17 @@ export type computerStateType = {
 };
 function MemoryTable({ machineCode }: { machineCode: MachineCodeType[] }) {
   const [modalOpen, setModalOpen] = useState(false);
+
   useEffect(() => {
-    setComputerState((st) => ({
-      ...st,
+    setComputerState(() => ({
       Memory: machineCode,
       PC: machineCode[0] ? machineCode[0].addr : 0,
+      Rs: [0, 0, 0, 0, 0, 0, 0, 0],
+      CC: { N: 0, Z: 0, P: 0 },
+      IR: "",
+      MDR: "",
+      MAR: "",
+      halted: false,
     }));
   }, [machineCode]);
 
@@ -39,7 +46,7 @@ function MemoryTable({ machineCode }: { machineCode: MachineCodeType[] }) {
 
   return (
     <>
-      <Modal open={modalOpen} setOpen={setModalOpen} />
+      <Modal open={modalOpen} setOpen={setModalOpen} state={computerState} />
       <div className="pl-5 pt-3 h-full flex flex-col">
         <div className="overflow-y-auto h-full relative overflow-x-auto  shadow-md sm:rounded-lg">
           <table className="w-full text-sm text-left text-gray-500">
@@ -56,7 +63,19 @@ function MemoryTable({ machineCode }: { machineCode: MachineCodeType[] }) {
                   Adress
                 </th>
                 <th scope="col" className="px-6 py-3">
-                  Content
+                  <span className="block mb-2">Conetent</span>
+                  <div className="flex">
+                    {[...Array(16).keys()].map((i) => {
+                      return (
+                        <span
+                          className="w-7 text-white/80 font-light text-center"
+                          key={i}
+                        >
+                          {(15 - i).toString()}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </th>
               </tr>
             </thead>
@@ -74,7 +93,23 @@ function MemoryTable({ machineCode }: { machineCode: MachineCodeType[] }) {
                         <td className="px-6 py-4">
                           0x{line.addr.toString(16).toUpperCase()}
                         </td>
-                        <td className="px-6 py-4">{line.content.toString()}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex">
+                            {line.content
+                              .toString()
+                              .split("")
+                              .map((bit, i) => {
+                                return (
+                                  <span
+                                    className="w-7 py-1 border text-center"
+                                    key={i}
+                                  >
+                                    {bit}
+                                  </span>
+                                );
+                              })}
+                          </div>
+                        </td>
                       </tr>
                     );
                   })
@@ -93,13 +128,18 @@ function MemoryTable({ machineCode }: { machineCode: MachineCodeType[] }) {
             status
           </button>
           <button
+            disabled={computerState.halted}
             className="bg-yellow-500 rounded p-3 border border-transparent text-white disabled:opacity-40"
             onClick={(e) => {
               e.preventDefault();
-              executeNext(computerState, setComputerState);
+              try {
+                executeNext(computerState, setComputerState);
+              } catch (error: unknown) {
+                if (error instanceof Error) toast.error(error.message);
+              }
             }}
           >
-            execute
+            {computerState.halted ? "program finished" : "execute"}
           </button>
         </div>
       </div>

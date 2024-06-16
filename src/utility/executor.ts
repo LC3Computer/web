@@ -75,12 +75,12 @@ function andCommand(tempState: computerStateType, command: string) {
   const DR = parseInt(command.slice(4, 7), 2);
   const SR1 = parseInt(command.slice(7, 10), 2);
 
-  if (command[10] === '0') {
+  if (command[10] === "0") {
     const SR2 = parseInt(command.slice(13, 16), 2);
     tempState.Rs[DR] = tempState.Rs[SR1] & tempState.Rs[SR2];
   } else {
     const imm5 = parseInt(command.slice(11, 16), 2);
-    tempState.Rs[DR] = tempState.Rs[SR1] & (imm5 & 0x1F);
+    tempState.Rs[DR] = tempState.Rs[SR1] & (imm5 & 0x1f);
   }
 
   const result = tempState.Rs[DR];
@@ -96,26 +96,25 @@ function andCommand(tempState: computerStateType, command: string) {
   tempState.PC++;
 }
 
-
 function addCommand(tempState: computerStateType, command: string) {
   if (!command) return;
 
-  const DR = parseInt(command.slice(4, 7), 2); 
+  const DR = parseInt(command.slice(4, 7), 2);
   const SR1 = parseInt(command.slice(7, 10), 2);
 
-  if (command[10] === '0') {
-    const SR2 = parseInt(command.slice(13, 16), 2); 
-    tempState.Rs[DR] = (tempState.Rs[SR1] + tempState.Rs[SR2]) & 0xFFFF;
+  if (command[10] === "0") {
+    const SR2 = parseInt(command.slice(13, 16), 2);
+    tempState.Rs[DR] = (tempState.Rs[SR1] + tempState.Rs[SR2]) & 0xffff;
   } else {
     const imm5 = parseInt(command.slice(11, 16), 2);
-    tempState.Rs[DR] = (tempState.Rs[SR1] + (imm5 & 0x1F)) & 0xFFFF; 
+    tempState.Rs[DR] = (tempState.Rs[SR1] + (imm5 & 0x1f)) & 0xffff;
   }
 
   const result = tempState.Rs[DR];
 
   if (result === 0) {
     tempState.CC = { N: 0, Z: 1, P: 0 };
-  } else if (result & 0x8000) { 
+  } else if (result & 0x8000) {
     tempState.CC = { N: 1, Z: 0, P: 0 };
   } else {
     tempState.CC = { N: 0, Z: 0, P: 1 };
@@ -130,7 +129,7 @@ function notCommand(tempState: computerStateType, command: string) {
   const DR = parseInt(command.slice(4, 7), 2);
   const SR = parseInt(command.slice(7, 10), 2);
 
-  tempState.Rs[DR] = ~tempState.Rs[SR] & 0xFFFF;
+  tempState.Rs[DR] = ~tempState.Rs[SR] & 0xffff;
 
   const result = tempState.Rs[DR];
 
@@ -149,13 +148,14 @@ function ldCommand(tempState: computerStateType, command: string) {
   if (!command) return;
 
   const registerNumber = parseInt(command.slice(4, 7), 2);
-  if (registerNumber === 7) throw new Error("Cannot load to register R7. It is reserved.");
+  if (registerNumber === 7)
+    throw new Error("Cannot load to register R7. It is reserved.");
 
   const labelAddress = tempState.PC + parseInt(command.slice(7, 16), 2);
   const label = tempState.Memory.find((m) => m.addr === labelAddress);
   if (!label) throw new Error("Label not found");
 
-  tempState.MAR = labelAddress.toString(2);
+  tempState.MAR = labelAddress.toString(2).padStart(16, "0");
   tempState.MDR = label.content;
   tempState.Rs[registerNumber] = binStrToNumber(label.content);
   tempState.PC++;
@@ -165,16 +165,21 @@ function ldiCommand(tempState: computerStateType, command: string) {
   if (!command) return;
 
   const registerNumber = parseInt(command.slice(4, 7), 2);
-  if (registerNumber === 7) throw new Error("Cannot load to register R7. It is reserved.");
+  if (registerNumber === 7)
+    throw new Error("Cannot load to register R7. It is reserved.");
 
   const labelAddress = tempState.PC + parseInt(command.slice(7, 16), 2);
-  const effectiveAddress = tempState.Memory.find((m) => m.addr === labelAddress)?.content;
+  const effectiveAddress = tempState.Memory.find(
+    (m) => m.addr === labelAddress
+  )?.content;
   if (!effectiveAddress) throw new Error("Effective address not found");
 
-  const label = tempState.Memory.find((m) => m.addr === parseInt(effectiveAddress, 2));
+  const label = tempState.Memory.find(
+    (m) => m.addr === parseInt(effectiveAddress, 2)
+  );
   if (!label) throw new Error("Label not found");
 
-  tempState.MAR = effectiveAddress;
+  tempState.MAR = effectiveAddress.padStart(16, "0");
   tempState.MDR = label.content;
   tempState.Rs[registerNumber] = binStrToNumber(label.content);
   tempState.PC++;
@@ -191,7 +196,7 @@ function ldrCommand(tempState: computerStateType, command: string) {
   const label = tempState.Memory.find((m) => m.addr === labelAddress);
   if (!label) throw new Error("Label not found");
 
-  tempState.MAR = labelAddress.toString(2);
+  tempState.MAR = labelAddress.toString(2).padStart(16, "0");
   tempState.MDR = label.content;
   tempState.Rs[DR] = binStrToNumber(label.content);
   tempState.PC++;
@@ -201,10 +206,11 @@ function leaCommand(tempState: computerStateType, command: string) {
   if (!command) return;
 
   const registerNumber = parseInt(command.slice(4, 7), 2);
-  if (registerNumber === 7) throw new Error("Cannot load to register R7. It is reserved.");
+  if (registerNumber === 7)
+    throw new Error("Cannot load to register R7. It is reserved.");
 
   const labelAddress = tempState.PC + parseInt(command.slice(7, 16), 2);
-  
+
   tempState.Rs[registerNumber] = labelAddress;
   tempState.PC++;
 }
@@ -212,12 +218,14 @@ function leaCommand(tempState: computerStateType, command: string) {
 function stCommand(tempState: computerStateType, command: string) {
   if (!command) return;
 
-  const registerNumber = parseInt(command.slice(4, 7), 2); 
-  const offset = parseInt(command.slice(7, 16), 2); 
+  const registerNumber = parseInt(command.slice(4, 7), 2);
+  const offset = parseInt(command.slice(7, 16), 2);
   const labelAddress = tempState.PC + offset;
 
-  tempState.MAR = labelAddress.toString(2);
-  const memoryIndex = tempState.Memory.findIndex((m) => m.addr === labelAddress);
+  tempState.MAR = labelAddress.toString(2).padStart(16, "0");
+  const memoryIndex = tempState.Memory.findIndex(
+    (m) => m.addr === labelAddress
+  );
   if (memoryIndex === -1) throw new Error("Label not found");
 
   const contentSR = tempState.Rs[registerNumber];
@@ -233,16 +241,20 @@ function stiCommand(tempState: computerStateType, command: string) {
 
   const registerNumber = parseInt(command.slice(4, 7), 2);
   const labelAddress = tempState.PC + parseInt(command.slice(7, 16), 2);
-  const effectiveAddress = tempState.Memory.find((m) => m.addr === labelAddress)?.content;
+  const effectiveAddress = tempState.Memory.find(
+    (m) => m.addr === labelAddress
+  )?.content;
   if (!effectiveAddress) throw new Error("effective address not found");
 
-  const memoryIndex = tempState.Memory.findIndex((m) => m.addr === parseInt(effectiveAddress, 2));
+  const memoryIndex = tempState.Memory.findIndex(
+    (m) => m.addr === parseInt(effectiveAddress, 2)
+  );
   if (memoryIndex == -1) throw new Error("label not found");
 
   const contentDR = tempState.Rs[registerNumber];
   const contentToStore = (contentDR & 0xffff).toString(2).padStart(16, "0");
 
-  tempState.MAR = effectiveAddress;
+  tempState.MAR = effectiveAddress.padStart(16, "0");
   tempState.MDR = contentToStore;
   tempState.Memory[memoryIndex].content = contentToStore;
   tempState.PC++;
@@ -251,13 +263,15 @@ function stiCommand(tempState: computerStateType, command: string) {
 function strCommand(tempState: computerStateType, command: string) {
   if (!command) return;
 
-  const SR = parseInt(command.slice(4, 7), 2); 
-  const baseR = parseInt(command.slice(7, 10), 2); 
-  const offset = parseInt(command.slice(10, 16), 2); 
+  const SR = parseInt(command.slice(4, 7), 2);
+  const baseR = parseInt(command.slice(7, 10), 2);
+  const offset = parseInt(command.slice(10, 16), 2);
   const labelAddress = tempState.Rs[baseR] + offset;
 
-  tempState.MAR = labelAddress.toString(2);
-  const memoryIndex = tempState.Memory.findIndex((m) => m.addr === labelAddress);
+  tempState.MAR = labelAddress.toString(2).padStart(16, "0");
+  const memoryIndex = tempState.Memory.findIndex(
+    (m) => m.addr === labelAddress
+  );
   if (memoryIndex === -1) throw new Error("Label not found");
 
   const contentSR = tempState.Rs[SR];
@@ -274,11 +288,15 @@ function brCommand(tempState: computerStateType, command: string) {
   const conditionCodes = command.slice(4, 7);
   const offset = binStrToNumber(command.slice(7, 16));
 
-  const n = conditionCodes[0] === '1';
-  const z = conditionCodes[1] === '1';
-  const p = conditionCodes[2] === '1';
+  const n = conditionCodes[0] === "1";
+  const z = conditionCodes[1] === "1";
+  const p = conditionCodes[2] === "1";
 
-  const takeBranch = (n && tempState.CC.N) || (z && tempState.CC.Z) || (p && tempState.CC.P) || (!n && z! && !p);
+  const takeBranch =
+    (n && tempState.CC.N) ||
+    (z && tempState.CC.Z) ||
+    (p && tempState.CC.P) ||
+    (!n && z! && !p);
 
   if (takeBranch) {
     tempState.PC = tempState.PC + offset;
@@ -292,9 +310,9 @@ function jsrCommand(tempState: computerStateType, command: string) {
 
   const offset11 = parseInt(command.slice(5, 16), 2);
   const flag = command[4];
-  const temp= tempState.PC; 
-  
-  if (flag === '1') {
+  const temp = tempState.PC;
+
+  if (flag === "1") {
     const labelAddress = tempState.PC + offset11;
     const label = tempState.Memory.find((m) => m.addr === labelAddress);
     if (!label) throw new Error("Label not found");
@@ -314,15 +332,16 @@ function jsrCommand(tempState: computerStateType, command: string) {
 function jmpOrRetCommand(tempState: computerStateType, command: string) {
   if (!command) return;
 
-  const baseR = parseInt(command.slice(7, 10),2);
+  const baseR = parseInt(command.slice(7, 10), 2);
   tempState.PC = tempState.Rs[baseR];
-
 }
 
 function hltCommand(tempState: computerStateType) {
-  tempState.halted = true; 
+  tempState.halted = true;
 }
 
 function notFound(tempState: computerStateType, command: string) {
-  throw new Error(`Opcode ${command} in line with address ${tempState.PC} not recognized.`);
+  throw new Error(
+    `Opcode ${command} in line with address ${tempState.PC} not recognized.`
+  );
 }

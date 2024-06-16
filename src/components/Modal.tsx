@@ -1,11 +1,14 @@
+import { computerStateType } from "./MemoryTable";
 import Register from "./Register";
 
 function Modal({
   open,
   setOpen,
+  state,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  state: computerStateType;
 }) {
   if (!open) return null;
 
@@ -34,39 +37,40 @@ function Modal({
             </button>
           </div>
           <div className="my-10 flex flex-col space-y-10">
-          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3">
               <span className="w-16 text-left">CC -&gt; </span>
-              <Register bitCount={3} type="CC" />
+              <Register
+                data={`${state.CC.N.toString()}${state.CC.Z.toString()}${state.CC.P.toString()}`}
+                type="CC"
+              />
             </div>
             <div className="flex items-center space-x-3">
               <span className="w-16 text-left">IR -&gt; </span>
-              <Register bitCount={16} type="IR" />
+              <Register data={state.IR} type="IR" />
             </div>
             <div className="flex items-center space-x-3">
               <span className="w-16 text-left">PC -&gt; </span>
-              <Register bitCount={16} />
+              <Register data={state.PC.toString(2).padStart(16, "0")} />
             </div>
             <div className="flex items-center space-x-3">
               <span className="w-16 text-left">MAR -&gt; </span>
-              <Register bitCount={16} />
+              <Register data={state.MAR} />
             </div>
             <div className="flex items-center space-x-3">
               <span className="w-16 text-left">MDR -&gt; </span>
-              <Register bitCount={16} />
+              <Register data={state.MDR} />
             </div>
 
-            <div className="flex items-center space-x-3">
-              <span className="w-16 text-left">R0 -&gt; </span>
-              <Register bitCount={16} />
-            </div>
-            <div className="flex items-center space-x-3">
-              <span className="w-16 text-left">R1 -&gt; </span>
-              <Register bitCount={16} />
-            </div>
-            <div className="flex items-center space-x-3">
-              <span className="w-16 text-left">R2 -&gt; </span>
-              <Register bitCount={16} />
-            </div>
+            {state.Rs.map((Ri, i) => {
+              return (
+                <div className="flex items-center space-x-3" key={i}>
+                  <span className="w-16 text-left">
+                    R{(i).toString()} -&gt;{" "}
+                  </span>
+                  <Register data={Ri.toString(2).padStart(16, "0")} />
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
