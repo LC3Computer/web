@@ -93,10 +93,7 @@ function andCommand(tempState: computerStateType, command: string) {
     tempState.CC = { N: 0, Z: 0, P: 1 };
   }
 
-  const currentInstructionIndex = tempState.Memory.findIndex(
-    (m) => m.addr === tempState.PC
-  );
-  tempState.PC += (tempState.Memory[currentInstructionIndex + 1].addr - tempState.Memory[currentInstructionIndex].addr);
+  tempState.PC++;
 }
 
 function addCommand(tempState: computerStateType, command: string) {
@@ -122,10 +119,7 @@ function addCommand(tempState: computerStateType, command: string) {
   } else {
     tempState.CC = { N: 0, Z: 0, P: 1 };
   }
-  const currentInstructionIndex = tempState.Memory.findIndex(
-    (m) => m.addr === tempState.PC
-  );
-  tempState.PC += (tempState.Memory[currentInstructionIndex + 1].addr - tempState.Memory[currentInstructionIndex].addr);
+  tempState.PC++;
 }
 
 function notCommand(tempState: computerStateType, command: string) {
@@ -146,10 +140,7 @@ function notCommand(tempState: computerStateType, command: string) {
     tempState.CC = { N: 0, Z: 0, P: 1 };
   }
 
-  const currentInstructionIndex = tempState.Memory.findIndex(
-    (m) => m.addr === tempState.PC
-  );
-  tempState.PC += (tempState.Memory[currentInstructionIndex + 1].addr - tempState.Memory[currentInstructionIndex].addr);
+  tempState.PC++;
 }
 
 function ldCommand(tempState: computerStateType, command: string) {
@@ -175,11 +166,8 @@ function ldCommand(tempState: computerStateType, command: string) {
   } else {
     tempState.CC = { N: 0, Z: 0, P: 1 };
   }
-  
-  const currentInstructionIndex = tempState.Memory.findIndex(
-    (m) => m.addr === tempState.PC
-  );
-  tempState.PC += (tempState.Memory[currentInstructionIndex + 1].addr - tempState.Memory[currentInstructionIndex].addr);
+
+  tempState.PC++;
 }
 
 function ldiCommand(tempState: computerStateType, command: string) {
@@ -212,11 +200,8 @@ function ldiCommand(tempState: computerStateType, command: string) {
   } else {
     tempState.CC = { N: 0, Z: 0, P: 1 };
   }
-  
-  const currentInstructionIndex = tempState.Memory.findIndex(
-    (m) => m.addr === tempState.PC
-  );
-  tempState.PC += (tempState.Memory[currentInstructionIndex + 1].addr - tempState.Memory[currentInstructionIndex].addr);
+
+  tempState.PC++;
 }
 
 function ldrCommand(tempState: computerStateType, command: string) {
@@ -243,11 +228,8 @@ function ldrCommand(tempState: computerStateType, command: string) {
   } else {
     tempState.CC = { N: 0, Z: 0, P: 1 };
   }
-  
-  const currentInstructionIndex = tempState.Memory.findIndex(
-    (m) => m.addr === tempState.PC
-  );
-  tempState.PC += (tempState.Memory[currentInstructionIndex + 1].addr - tempState.Memory[currentInstructionIndex].addr);
+
+  tempState.PC++;
 }
 
 function leaCommand(tempState: computerStateType, command: string) {
@@ -260,10 +242,7 @@ function leaCommand(tempState: computerStateType, command: string) {
   const labelAddress = tempState.PC + parseInt(command.slice(7, 16), 2);
 
   tempState.Rs[registerNumber] = labelAddress;
-  const currentInstructionIndex = tempState.Memory.findIndex(
-    (m) => m.addr === tempState.PC
-  );
-  tempState.PC += (tempState.Memory[currentInstructionIndex + 1].addr - tempState.Memory[currentInstructionIndex].addr);
+  tempState.PC++;
 }
 
 function stCommand(tempState: computerStateType, command: string) {
@@ -284,10 +263,7 @@ function stCommand(tempState: computerStateType, command: string) {
 
   tempState.MDR = contentToStore;
   tempState.Memory[memoryIndex].content = contentToStore;
-  const currentInstructionIndex = tempState.Memory.findIndex(
-    (m) => m.addr === tempState.PC
-  );
-  tempState.PC += (tempState.Memory[currentInstructionIndex + 1].addr - tempState.Memory[currentInstructionIndex].addr);
+  tempState.PC++;
 }
 
 function stiCommand(tempState: computerStateType, command: string) {
@@ -311,10 +287,7 @@ function stiCommand(tempState: computerStateType, command: string) {
   tempState.MAR = effectiveAddress.padStart(16, "0");
   tempState.MDR = contentToStore;
   tempState.Memory[memoryIndex].content = contentToStore;
-  const currentInstructionIndex = tempState.Memory.findIndex(
-    (m) => m.addr === tempState.PC
-  );
-  tempState.PC += (tempState.Memory[currentInstructionIndex + 1].addr - tempState.Memory[currentInstructionIndex].addr);
+  tempState.PC++;
 }
 
 function strCommand(tempState: computerStateType, command: string) {
@@ -336,10 +309,7 @@ function strCommand(tempState: computerStateType, command: string) {
 
   tempState.MDR = contentToStore;
   tempState.Memory[memoryIndex].content = contentToStore;
-  const currentInstructionIndex = tempState.Memory.findIndex(
-    (m) => m.addr === tempState.PC
-  );
-  tempState.PC += (tempState.Memory[currentInstructionIndex + 1].addr - tempState.Memory[currentInstructionIndex].addr);
+  tempState.PC++;
 }
 
 function brCommand(tempState: computerStateType, command: string) {
@@ -356,15 +326,12 @@ function brCommand(tempState: computerStateType, command: string) {
     (n && tempState.CC.N) ||
     (z && tempState.CC.Z) ||
     (p && tempState.CC.P) ||
-    (n===false && z===false && p===false);
+    (n === false && z === false && p === false);
 
   if (takeBranch) {
     tempState.PC = tempState.PC + offset;
   } else {
-    const currentInstructionIndex = tempState.Memory.findIndex(
-      (m) => m.addr === tempState.PC
-    );
-    tempState.PC += (tempState.Memory[currentInstructionIndex + 1].addr - tempState.Memory[currentInstructionIndex].addr);
+    tempState.PC++;
   }
 }
 
