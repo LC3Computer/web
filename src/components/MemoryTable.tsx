@@ -47,7 +47,7 @@ function MemoryTable({ machineCode }: { machineCode: MachineCodeType[] }) {
   return (
     <>
       <Modal open={modalOpen} setOpen={setModalOpen} state={computerState} />
-      <div className="pl-5 pt-3 h-full flex flex-col">
+      <div className="lg:pl-5 pl-0 pt-3 h-full flex flex-col">
         <div className="overflow-y-auto h-full relative overflow-x-auto  shadow-md sm:rounded-lg">
           <table className="w-full text-sm text-left text-gray-500">
             <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-white ">
