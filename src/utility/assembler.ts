@@ -37,8 +37,8 @@ export const INSTRUCTIONS_LIST = [
 
 const validRegisters = ["R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7"];
 
-
 export function assembler(str: string): MachineCodeType[] {
+  if (!str || !str.length) throw new Error("Code is Empty");
   let codeArray = str.split("\n");
   codeArray = codeArray.map((l) => l.trim());
 
@@ -73,7 +73,7 @@ export function assembler(str: string): MachineCodeType[] {
     }
   });
 
-   console.log(labelTable);
+  console.log(labelTable);
   currentAddress = 0x3000;
 
   codeArray.forEach((line) => {
@@ -93,7 +93,7 @@ export function assembler(str: string): MachineCodeType[] {
         const instructionCode = processNot(line, currentAddress);
         machineCode.push(instructionCode);
         currentAddress++;
-      }  else if (line.startsWith("LDI")) {
+      } else if (line.startsWith("LDI")) {
         const instructionCode = processLdi(line, currentAddress, labelTable);
         machineCode.push(instructionCode);
         currentAddress++;
@@ -117,7 +117,7 @@ export function assembler(str: string): MachineCodeType[] {
         const instructionCode = processStr(line, currentAddress);
         machineCode.push(instructionCode);
         currentAddress++;
-      }  else if (line.startsWith("ST")) {
+      } else if (line.startsWith("ST")) {
         const instructionCode = processSt(line, currentAddress, labelTable);
         machineCode.push(instructionCode);
         currentAddress++;
@@ -134,9 +134,9 @@ export function assembler(str: string): MachineCodeType[] {
         machineCode.push(instructionCode);
         currentAddress++;
       } else if (line.startsWith("RET")) {
-        const remainder = line.slice(3).trim(); 
+        const remainder = line.slice(3).trim();
         if (remainder.length > 0) {
-            throw new Error("Unexpected characters after RET instruction");
+          throw new Error("Unexpected characters after RET instruction");
         }
         const instructionCode = processRet(currentAddress);
         machineCode.push(instructionCode);
@@ -150,16 +150,17 @@ export function assembler(str: string): MachineCodeType[] {
         machineCode.push(instructionCode);
         currentAddress++;
       } else if (line.startsWith("HALT") || line.startsWith("HLT")) {
-        const c = line.startsWith("HALT")? 4 :3;
-        const remainder = line.slice(c).trim(); 
+        const c = line.startsWith("HALT") ? 4 : 3;
+        const remainder = line.slice(c).trim();
         if (remainder.length > 0) {
-            throw new Error("Unexpected characters after HALT or HLT instruction");
+          throw new Error(
+            "Unexpected characters after HALT or HLT instruction"
+          );
         }
 
         const instructionCode = processHlt(currentAddress);
         machineCode.push(instructionCode);
         currentAddress++;
-
       }
     }
   });
@@ -185,14 +186,12 @@ function processAdd(
 
   const [dest, src1, src2OrImm] = parts.map((p) => p.trim());
 
-
   if (!validRegisters.includes(dest) || !validRegisters.includes(src1)) {
     throw new Error("Invalid register specified.");
   }
 
   const DR = parseInt(dest[1]).toString(2).padStart(3, "0");
   const SR1 = parseInt(src1[1]).toString(2).padStart(3, "0");
-  
 
   let typeBit: string;
   let sr2OrImmBits: string;
@@ -220,7 +219,6 @@ function processAdd(
     }
     sr2OrImmBits = (imm & 0x1f).toString(2).padStart(5, "0");
   } else {
-    
     if (!validRegisters.includes(src2OrImm)) {
       throw new Error("Invalid register specified.");
     }
@@ -279,7 +277,6 @@ function processAnd(
     }
     sr2OrImmBits = (imm & 0x1f).toString(2).padStart(5, "0");
   } else {
-
     if (!validRegisters.includes(src2OrImm)) {
       throw new Error("Invalid register specified.");
     }
@@ -400,12 +397,10 @@ function processJmp(
   instruction: string,
   currentAddress: number
 ): MachineCodeType {
-
-
   if (!validRegisters.includes(instruction.slice(4).trim())) {
     throw new Error("Invalid register specified.");
   }
-  
+
   const baseR = parseInt(instruction.slice(4).trim()[1])
     .toString(2)
     .padStart(3, "0");
@@ -495,7 +490,6 @@ function processLea(
     throw new Error("Invalid register specified.");
   }
 
-
   const DR = parseInt(dest[1]).toString(2).padStart(3, "0");
   const offset = labelAddressMap[label] - currentAddress;
   if (isNaN(offset) || offset >= 512) {
@@ -525,7 +519,6 @@ function processSt(
     throw new Error("Invalid register specified.");
   }
 
-
   const SR = parseInt(src[1]).toString(2).padStart(3, "0");
   const offset = labelAddressMap[label] - currentAddress;
   if (isNaN(offset) || offset >= 512) {
@@ -554,7 +547,6 @@ function processSti(
   if (!validRegisters.includes(src)) {
     throw new Error("Invalid register specified.");
   }
-
 
   const SR = parseInt(src[1]).toString(2).padStart(3, "0");
   const offset = labelAddressMap[label] - currentAddress;
@@ -597,7 +589,6 @@ function processBr(
 }
 
 function processJsr(
-
   instruction: string,
   currentAddress: number,
   labelAddressMap: LabelTableType
@@ -605,7 +596,7 @@ function processJsr(
   if (instruction.startsWith("JSRR")) {
     if (!validRegisters.includes(instruction.slice(4).trim())) {
       throw new Error("Invalid register specified.");
-    }  
+    }
     const baseR = parseInt(instruction.slice(5).trim()[1])
       .toString(2)
       .padStart(3, "0");

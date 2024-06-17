@@ -6,13 +6,13 @@ import { Toaster } from "react-hot-toast";
 function Home() {
   const [machineCode, setMachineCode] = useState<MachineCodeType[]>([]);
   return (
-    <div className="h-screen overflow-hidden p-3 bg-gradient-to-r from-cyan-600 to-sky-900">
+    <div className="min-h-screen lg:h-screen overflow-hidden p-3 bg-gradient-to-r from-cyan-600 to-sky-900">
       <Toaster position="bottom-center" />
-      <div className="flex flex-row h-full">
-        <div className="w-6/12">
+      <div className="flex flex-row h-full lg:flex-nowrap flex-wrap ">
+        <div className="lg:w-6/12 w-full mb-5 lg:mb-0">
           <AsmInput setMachineCode={setMachineCode} />
         </div>
-        <div className="w-6/12 text-center">
+        <div className="lg:w-6/12 w-full text-center">
           <MemoryTable machineCode={machineCode} />
         </div>
       </div>
