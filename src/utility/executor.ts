@@ -338,25 +338,22 @@ function brCommand(tempState: computerStateType, command: string) {
 function jsrCommand(tempState: computerStateType, command: string) {
   if (!command) return;
 
-  const offset11 = parseInt(command.slice(5, 16), 2);
+  const offset11 = binStrToNumber(command.slice(5, 16));
   const flag = command[4];
-  const temp = tempState.PC;
+  tempState.Rs[7] = tempState.PC + 1;
 
   if (flag === "1") {
     const labelAddress = tempState.PC + offset11;
+    console.log(labelAddress);
     const label = tempState.Memory.find((m) => m.addr === labelAddress);
     if (!label) throw new Error("Label not found");
 
-    tempState.PC = binStrToNumber(label.content);
+    tempState.PC = labelAddress;
   } else {
-    const labelAddress = tempState.Rs[offset11];
-    const label = tempState.Memory.find((m) => m.addr === labelAddress);
-    if (!label) throw new Error("Label not found");
-
-    tempState.PC = binStrToNumber(label.content);
+    const baseR = parseInt(command.slice(7,10),2);
+    tempState.PC = tempState.Rs[baseR];
   }
 
-  tempState.Rs[7] = temp;
 }
 
 function jmpOrRetCommand(tempState: computerStateType, command: string) {

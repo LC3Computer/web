@@ -609,7 +609,7 @@ function processJsr(
       throw new Error("Offset out of range.");
     }
     const PCoffset11 = (offset & 0x7ff).toString(2).padStart(11, "0");
-    const content = `010011${PCoffset11}`;
+    const content = `01001${PCoffset11}`;
     return { addr: currentAddress, content: content };
   }
 }
