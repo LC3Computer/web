@@ -4,8 +4,10 @@ import AsmOutput from "./AsmOutput";
 import toast from "react-hot-toast";
 function AsmInput({
   setMachineCode,
+  currentLine,
 }: {
   setMachineCode: React.Dispatch<React.SetStateAction<MachineCodeType[]>>;
+  currentLine: number;
 }) {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [assemblyCode, setAssemblyCode] = useState("");
@@ -58,7 +60,7 @@ function AsmInput({
         <span className="text-yellow-500">machine code</span>
       </p>
       {showOutput ? (
-        <AsmOutput content={assemblyCode} />
+        <AsmOutput content={assemblyCode} currentLine={currentLine} />
       ) : (
         <textarea
           spellCheck="false"

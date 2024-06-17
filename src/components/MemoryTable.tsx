@@ -1,5 +1,5 @@
 import { MachineCodeType } from "../utility/assembler";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { executeNext } from "../utility/executor";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
@@ -24,7 +24,13 @@ export type computerStateType = {
   MAR: string;
   halted: boolean;
 };
-function MemoryTable({ machineCode }: { machineCode: MachineCodeType[] }) {
+function MemoryTable({
+  machineCode,
+  setCurrentLine,
+}: {
+  machineCode: MachineCodeType[];
+  setCurrentLine: React.Dispatch<React.SetStateAction<number>>;
+}) {
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
@@ -42,6 +48,17 @@ function MemoryTable({ machineCode }: { machineCode: MachineCodeType[] }) {
 
   const [computerState, setComputerState] =
     useState<computerStateType>(initialComputerState);
+
+  const prevPC = useRef(-1);
+  useEffect(() => {
+    if (prevPC.current == -1 || prevPC.current == 0)
+      prevPC.current = computerState.PC;
+    else {
+      setCurrentLine(prev => prev + (computerState.PC - prevPC.current));
+      prevPC.current = computerState.PC;
+    }
+  }, [computerState.PC, setCurrentLine]);
+
   console.log(computerState);
 
   return (
