@@ -59,7 +59,7 @@ function MemoryTable({
     }
   }, [computerState.PC, setCurrentLine]);
 
-  console.log(computerState);
+  //console.log(computerState);
 
   return (
     <>

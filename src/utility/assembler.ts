@@ -73,7 +73,7 @@ export function assembler(str: string): MachineCodeType[] {
     }
   });
 
-  console.log(labelTable);
+  //console.log(labelTable);
   currentAddress = 0x3000;
 
   codeArray.forEach((line) => {
@@ -167,8 +167,8 @@ export function assembler(str: string): MachineCodeType[] {
 
   codeArray = codeArray.filter((line) => !line.startsWith("ORG"));
   codeArray = codeArray.filter((line) => !line.startsWith("END"));
-  console.log(codeArray);
-  console.log(machineCode);
+  //console.log(codeArray);
+  //console.log(machineCode);
 
   return machineCode;
 }
