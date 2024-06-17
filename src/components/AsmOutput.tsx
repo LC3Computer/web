@@ -13,7 +13,7 @@ function AsmOutput({ content }: { content: string }) {
       return (
         <>
           <span className="text-yellow-500">{line.split(",")[0].trim()}, </span>
-          <span>{line.split(",").slice(1).join("").trim()}</span>
+          <span>{line.split(",").slice(1).join(",").trim()}</span>
         </>
       );
     }
