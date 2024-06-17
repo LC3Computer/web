@@ -1,25 +1,23 @@
 import { useRef, useState } from "react";
-import { MachineCodeType, assembler } from "../utility/assembler";
-import AsmOutput from "./AsmOutput";
+import { assembler } from "../utility/assembler";
 import toast from "react-hot-toast";
-function AsmInput({
-  setMachineCode,
-  currentLine,
-}: {
-  setMachineCode: React.Dispatch<React.SetStateAction<MachineCodeType[]>>;
-  currentLine: number;
-}) {
+import useComputerStore from "../store/computer";
+function AsmInput() {
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const [assemblyCode, setAssemblyCode] = useState("");
-  const [showOutput, setShowOutput] = useState(false);
+  const setAssemblyCode = useComputerStore((state) => state.updateAssemblyCode);
+  const assemblyCode = useComputerStore((state) => state.assemblyCode);
+  const setShowOutput = useComputerStore((state) => state.updateShowOutput);
+  const [textAreaValue, setTextAreaValue] = useState(assemblyCode);
+
   const [loading, setLoading] = useState(false);
+  const setMachineCode = useComputerStore((state) => state.updateMachineCode);
   const handleOpenfile = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     inputFileRef.current?.click();
   };
   const handleSampleCode = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setAssemblyCode(sampleCode);
+    setTextAreaValue(sampleCode);
   };
   const handleChangeFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -30,25 +28,21 @@ function AsmInput({
       }
       setLoading(true);
       const data = await selectedFile.text();
-      setAssemblyCode(data);
+      setTextAreaValue(data);
     }
     setLoading(false);
   };
 
   const startAssembler = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (showOutput) {
-      setShowOutput(false);
-      return;
-    } else {
-      try {
-        const compiledCode = assembler(assemblyCode);
-        setMachineCode(compiledCode);
-        setShowOutput(true);
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          toast.error(error.message);
-        }
+    try {
+      const compiledCode = assembler(textAreaValue);
+      setMachineCode(compiledCode);
+      setAssemblyCode(textAreaValue);
+      setShowOutput(true);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
       }
     }
   };
@@ -59,18 +53,15 @@ function AsmInput({
         Enter your assembly code press assemble to generate{" "}
         <span className="text-yellow-500">machine code</span>
       </p>
-      {showOutput ? (
-        <AsmOutput content={assemblyCode} currentLine={currentLine} />
-      ) : (
-        <textarea
-          spellCheck="false"
-          placeholder="Enter your assembly code here ..."
-          value={assemblyCode}
-          onChange={(e) => setAssemblyCode(e.target.value)}
-          className="min-h-96 rounded-lg border-2 text-white p-2 focus:border-yellow-500 transition-colors duration-100  placeholder:text-white/50 border-gray-300 shadow-lg bg-transparent outline-none  w-full  h-full resize-none"
-          dir="ltr"
-        ></textarea>
-      )}
+
+      <textarea
+        spellCheck="false"
+        placeholder="Enter your assembly code here ..."
+        value={textAreaValue}
+        onChange={(e) => setTextAreaValue(e.target.value)}
+        className="min-h-96 rounded-lg border-2 text-white p-2 focus:border-yellow-500 transition-colors duration-100  placeholder:text-white/50 border-gray-300 shadow-lg bg-transparent outline-none  w-full  h-full resize-none"
+        dir="ltr"
+      ></textarea>
 
       <div className="flex space-x-5 mt-3">
         <button
@@ -78,26 +69,24 @@ function AsmInput({
           disabled={loading}
           onClick={(e) => startAssembler(e)}
         >
-          {!showOutput ? "assemble" : "reset"}
+          assemble
         </button>
-        {!showOutput && (
-          <button
-            className="bg-white rounded p-3 border text-sky-700  disabled:opacity-40 text-sm lg:text-base"
-            onClick={(e) => handleOpenfile(e)}
-            disabled={loading}
-          >
-            {loading ? "loading ..." : "open file"}
-          </button>
-        )}
-        {!showOutput && (
-          <button
-            className="bg-white rounded p-3 border text-sky-700  disabled:opacity-40 text-sm lg:text-base"
-            onClick={(e) => handleSampleCode(e)}
-            disabled={loading}
-          >
-            {loading ? "loading ..." : "sample code"}
-          </button>
-        )}
+
+        <button
+          className="bg-white rounded p-3 border text-sky-700  disabled:opacity-40 text-sm lg:text-base"
+          onClick={(e) => handleOpenfile(e)}
+          disabled={loading}
+        >
+          {loading ? "loading ..." : "open file"}
+        </button>
+
+        <button
+          className="bg-white rounded p-3 border text-sky-700  disabled:opacity-40 text-sm lg:text-base"
+          onClick={(e) => handleSampleCode(e)}
+          disabled={loading}
+        >
+          {loading ? "loading ..." : "sample code"}
+        </button>
 
         <input
           type="file"

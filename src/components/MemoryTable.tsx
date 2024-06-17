@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { executeNext } from "../utility/executor";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
+import useComputerStore from "../store/computer";
 
 const initialComputerState = {
   Rs: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -24,14 +25,12 @@ export type computerStateType = {
   MAR: string;
   halted: boolean;
 };
-function MemoryTable({
-  machineCode,
-  setCurrentLine,
-}: {
-  machineCode: MachineCodeType[];
-  setCurrentLine: React.Dispatch<React.SetStateAction<number>>;
-}) {
+function MemoryTable() {
   const [modalOpen, setModalOpen] = useState(false);
+  const machineCode = useComputerStore((state) => state.machineCode);
+  const incCurrentAsmLine = useComputerStore(
+    (state) => state.incCurrentAsmLine
+  );
 
   useEffect(() => {
     setComputerState(() => ({
@@ -54,10 +53,10 @@ function MemoryTable({
     if (prevPC.current == -1 || prevPC.current == 0)
       prevPC.current = computerState.PC;
     else {
-      setCurrentLine((prev) => prev + (computerState.PC - prevPC.current));
+      incCurrentAsmLine(computerState.PC - prevPC.current);
       prevPC.current = computerState.PC;
     }
-  }, [computerState.PC, setCurrentLine]);
+  }, [computerState.PC, incCurrentAsmLine]);
 
   //console.log(computerState);
 
