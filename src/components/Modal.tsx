@@ -87,7 +87,8 @@ function Modal({
                   <span className="min-w-16 text-left">
                     R{i.toString()} -&gt;{" "}
                   </span>
-                  <Register data={Ri.toString(2).padStart(16, "0")} />
+                  
+                  <Register data={(Ri & 0xFFFF).toString(2).padStart(16, "0")} />
                 </div>
               );
             })}

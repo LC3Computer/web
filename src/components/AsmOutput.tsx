@@ -7,6 +7,8 @@ function AsmOutput({
   content: string;
   currentLine: number;
 }) {
+  //console.log(currentLine);
+  
   let codeArray = content.split("\n");
   codeArray = codeArray.map((l) => l.trim());
   let lineCount = 1;

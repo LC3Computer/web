@@ -54,7 +54,7 @@ function MemoryTable({
     if (prevPC.current == -1 || prevPC.current == 0)
       prevPC.current = computerState.PC;
     else {
-      setCurrentLine(prev => prev + (computerState.PC - prevPC.current));
+      setCurrentLine((prev) => prev + (computerState.PC - prevPC.current));
       prevPC.current = computerState.PC;
     }
   }, [computerState.PC, setCurrentLine]);
