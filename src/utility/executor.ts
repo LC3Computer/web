@@ -157,7 +157,17 @@ function ldCommand(tempState: computerStateType, command: string) {
 
   tempState.MAR = labelAddress.toString(2).padStart(16, "0");
   tempState.MDR = label.content;
-  tempState.Rs[registerNumber] = binStrToNumber(label.content);
+  const result = binStrToNumber(label.content);
+  tempState.Rs[registerNumber] = result;
+
+  if (result === 0) {
+    tempState.CC = { N: 0, Z: 1, P: 0 };
+  } else if (result & 0x8000) {
+    tempState.CC = { N: 1, Z: 0, P: 0 };
+  } else {
+    tempState.CC = { N: 0, Z: 0, P: 1 };
+  }
+  
   tempState.PC++;
 }
 
@@ -181,7 +191,17 @@ function ldiCommand(tempState: computerStateType, command: string) {
 
   tempState.MAR = effectiveAddress.padStart(16, "0");
   tempState.MDR = label.content;
-  tempState.Rs[registerNumber] = binStrToNumber(label.content);
+  const result = binStrToNumber(label.content);
+  tempState.Rs[registerNumber] = result;
+
+  if (result === 0) {
+    tempState.CC = { N: 0, Z: 1, P: 0 };
+  } else if (result & 0x8000) {
+    tempState.CC = { N: 1, Z: 0, P: 0 };
+  } else {
+    tempState.CC = { N: 0, Z: 0, P: 1 };
+  }
+  
   tempState.PC++;
 }
 
@@ -198,7 +218,18 @@ function ldrCommand(tempState: computerStateType, command: string) {
 
   tempState.MAR = labelAddress.toString(2).padStart(16, "0");
   tempState.MDR = label.content;
-  tempState.Rs[DR] = binStrToNumber(label.content);
+
+  const result = binStrToNumber(label.content);
+  tempState.Rs[DR] = result;
+
+  if (result === 0) {
+    tempState.CC = { N: 0, Z: 1, P: 0 };
+  } else if (result & 0x8000) {
+    tempState.CC = { N: 1, Z: 0, P: 0 };
+  } else {
+    tempState.CC = { N: 0, Z: 0, P: 1 };
+  }
+  
   tempState.PC++;
 }
 
@@ -296,7 +327,7 @@ function brCommand(tempState: computerStateType, command: string) {
     (n && tempState.CC.N) ||
     (z && tempState.CC.Z) ||
     (p && tempState.CC.P) ||
-    (!n && z! && !p);
+    (n===false && z===false && p===false);
 
   if (takeBranch) {
     tempState.PC = tempState.PC + offset;
