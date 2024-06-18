@@ -187,7 +187,7 @@ function processAdd(
   const [dest, src1, src2OrImm] = parts.map((p) => p.trim());
 
   if (!validRegisters.includes(dest) || !validRegisters.includes(src1)) {
-    throw new Error("Invalid register specified.");
+    throw new Error("Invalid register specified in ADD");
   }
 
   const DR = parseInt(dest[1]).toString(2).padStart(3, "0");
@@ -215,12 +215,12 @@ function processAdd(
     }
     const imm = parseInt(immString, base);
     if (isNaN(imm) || imm >= 32) {
-      throw new Error("Immediate value must be between -16 and 15.");
+      throw new Error("Immediate value in ADD must be between -16 and 15.");
     }
     sr2OrImmBits = (imm & 0x1f).toString(2).padStart(5, "0");
   } else {
     if (!validRegisters.includes(src2OrImm)) {
-      throw new Error("Invalid register specified.");
+      throw new Error("Invalid register specified in ADD");
     }
     typeBit = "0";
     const SR2 = parseInt(src2OrImm[1]).toString(2).padStart(3, "0");
@@ -245,7 +245,7 @@ function processAnd(
   const [dest, src1, src2OrImm] = parts.map((p) => p.trim());
 
   if (!validRegisters.includes(dest) || !validRegisters.includes(src1)) {
-    throw new Error("Invalid register specified.");
+    throw new Error("Invalid register specified in AND");
   }
 
   const DR = parseInt(dest[1]).toString(2).padStart(3, "0");
@@ -273,12 +273,12 @@ function processAnd(
     }
     const imm = parseInt(immString, base);
     if (isNaN(imm) || imm >= 32) {
-      throw new Error("Immediate value must be between -16 and 15.");
+      throw new Error("Immediate value in AND must be between -16 and 15.");
     }
     sr2OrImmBits = (imm & 0x1f).toString(2).padStart(5, "0");
   } else {
     if (!validRegisters.includes(src2OrImm)) {
-      throw new Error("Invalid register specified.");
+      throw new Error("Invalid register specified in AND");
     }
     typeBit = "0";
     const SR2 = parseInt(src2OrImm[1]).toString(2).padStart(3, "0");
@@ -303,7 +303,7 @@ function processNot(
   const [dest, src] = parts.map((p) => p.trim());
 
   if (!validRegisters.includes(dest) || !validRegisters.includes(src)) {
-    throw new Error("Invalid register specified.");
+    throw new Error("Invalid register specified in NOT");
   }
 
   const DR = parseInt(dest[1]).toString(2).padStart(3, "0");
@@ -327,7 +327,7 @@ function processStr(
   const [src, baseR, offset6] = parts.map((p) => p.trim());
 
   if (!validRegisters.includes(src) || !validRegisters.includes(baseR)) {
-    throw new Error("Invalid register specified.");
+    throw new Error("Invalid register specified in STR");
   }
 
   const SR = parseInt(src[1]).toString(2).padStart(3, "0");
@@ -341,11 +341,11 @@ function processStr(
   } else if (offset6.startsWith("b")) {
     offset = parseInt(offset6.slice(1), 2);
   } else {
-    throw new Error("Invalid offset representation.");
+    throw new Error("Invalid offset representation in STR");
   }
 
   if (isNaN(offset) || offset >= 64) {
-    throw new Error("Offset must be between -32 and 31.");
+    throw new Error("Offset in STR must be between -32 and 31.");
   }
   const offsetBits = (offset & 0x3f).toString(2).padStart(6, "0");
 
@@ -367,7 +367,7 @@ function processLdr(
   const [dr, baseR, offset6] = parts.map((p) => p.trim());
 
   if (!validRegisters.includes(dr) || !validRegisters.includes(baseR)) {
-    throw new Error("Invalid register specified.");
+    throw new Error("Invalid register specified in LDR");
   }
 
   const DR = parseInt(dr[1]).toString(2).padStart(3, "0");
@@ -381,11 +381,11 @@ function processLdr(
   } else if (offset6.startsWith("b")) {
     offset = parseInt(offset6.slice(1), 2);
   } else {
-    throw new Error("Invalid offset representation.");
+    throw new Error("Invalid offset representation in LDR");
   }
 
   if (isNaN(offset) || offset >= 64) {
-    throw new Error("Offset must be between -32 and 31.");
+    throw new Error("Offset in LDR must be between -32 and 31.");
   }
   const offsetBits = (offset & 0x3f).toString(2).padStart(6, "0");
 
@@ -398,7 +398,7 @@ function processJmp(
   currentAddress: number
 ): MachineCodeType {
   if (!validRegisters.includes(instruction.slice(4).trim())) {
-    throw new Error("Invalid register specified.");
+    throw new Error("Invalid register specified in JMP");
   }
 
   const baseR = parseInt(instruction.slice(4).trim()[1])
@@ -429,13 +429,13 @@ function processLd(
   const [dest, label] = parts.map((p) => p.trim());
 
   if (!validRegisters.includes(dest)) {
-    throw new Error("Invalid register specified.");
+    throw new Error("Invalid register specified in LD");
   }
 
   const DR = parseInt(dest[1]).toString(2).padStart(3, "0");
   const offset = labelAddressMap[label] - currentAddress;
   if (isNaN(offset) || offset >= 512) {
-    throw new Error("Offset out of range.");
+    throw new Error("Offset out of range in LD");
   }
   const PCoffset9 = (offset & 0x1ff).toString(2).padStart(9, "0");
 
@@ -458,13 +458,13 @@ function processLdi(
   const [dest, label] = parts.map((p) => p.trim());
 
   if (!validRegisters.includes(dest)) {
-    throw new Error("Invalid register specified.");
+    throw new Error("Invalid register specified in LDI");
   }
 
   const DR = parseInt(dest[1]).toString(2).padStart(3, "0");
   const offset = labelAddressMap[label] - currentAddress;
   if (isNaN(offset) || offset >= 512) {
-    throw new Error("Offset out of range.");
+    throw new Error("Offset out of range in LDI");
   }
   const PCoffset9 = (offset & 0x1ff).toString(2).padStart(9, "0");
 
@@ -487,13 +487,13 @@ function processLea(
   const [dest, label] = parts.map((p) => p.trim());
 
   if (!validRegisters.includes(dest)) {
-    throw new Error("Invalid register specified.");
+    throw new Error("Invalid register specified in LEA");
   }
 
   const DR = parseInt(dest[1]).toString(2).padStart(3, "0");
   const offset = labelAddressMap[label] - currentAddress;
   if (isNaN(offset) || offset >= 512) {
-    throw new Error("Offset out of range.");
+    throw new Error("Offset out of range in LEA");
   }
   const PCoffset9 = (offset & 0x1ff).toString(2).padStart(9, "0");
 
@@ -516,13 +516,13 @@ function processSt(
   const [src, label] = parts.map((p) => p.trim());
 
   if (!validRegisters.includes(src)) {
-    throw new Error("Invalid register specified.");
+    throw new Error("Invalid register specified in ST");
   }
 
   const SR = parseInt(src[1]).toString(2).padStart(3, "0");
   const offset = labelAddressMap[label] - currentAddress;
   if (isNaN(offset) || offset >= 512) {
-    throw new Error("Offset out of range.");
+    throw new Error("Offset out of range in ST");
   }
   const PCoffset9 = (offset & 0x1ff).toString(2).padStart(9, "0");
 
@@ -539,19 +539,19 @@ function processSti(
 
   const parts = instruction.split(",");
   if (parts.length !== 2) {
-    throw new Error("Invalid STI instruction format.");
+    throw new Error("Invalid STI instruction format");
   }
 
   const [src, label] = parts.map((p) => p.trim());
 
   if (!validRegisters.includes(src)) {
-    throw new Error("Invalid register specified.");
+    throw new Error("Invalid register specified in STI");
   }
 
   const SR = parseInt(src[1]).toString(2).padStart(3, "0");
   const offset = labelAddressMap[label] - currentAddress;
   if (isNaN(offset) || offset >= 512) {
-    throw new Error("Offset out of range.");
+    throw new Error("Offset out of range in STI");
   }
   const PCoffset9 = (offset & 0x1ff).toString(2).padStart(9, "0");
 
@@ -574,7 +574,7 @@ function processBr(
   const offset = labelAddressMap[label] - currentAddress;
 
   if (isNaN(offset) || offset >= 512) {
-    throw new Error("Offset out of range.");
+    throw new Error("Offset out of range in BR");
   }
 
   const n = condition.includes("n") ? "1" : "0";
@@ -595,7 +595,7 @@ function processJsr(
 ): MachineCodeType {
   if (instruction.startsWith("JSRR")) {
     if (!validRegisters.includes(instruction.slice(4).trim())) {
-      throw new Error("Invalid register specified.");
+      throw new Error("Invalid register specified in JSRR");
     }
     const baseR = parseInt(instruction.slice(5).trim()[1])
       .toString(2)
@@ -606,7 +606,7 @@ function processJsr(
     const label = instruction.slice(3).trim();
     const offset = labelAddressMap[label] - currentAddress;
     if (isNaN(offset) || offset >= 2048) {
-      throw new Error("Offset out of range.");
+      throw new Error("Offset out of range in JSR");
     }
     const PCoffset11 = (offset & 0x7ff).toString(2).padStart(11, "0");
     const content = `01001${PCoffset11}`;
