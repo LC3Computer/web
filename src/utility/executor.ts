@@ -153,7 +153,7 @@ function ldCommand(tempState: computerStateType, command: string) {
   if (registerNumber === 7)
     throw new Error("Cannot load to register R7. It is reserved.");
 
-  const labelAddress = tempState.PC + parseInt(command.slice(7, 16), 2);
+  const labelAddress = tempState.PC + binStrToNumber(command.slice(7, 16));
   const label = tempState.Memory.find((m) => m.addr === labelAddress);
   if (!label) throw new Error("Label not found");
 
@@ -180,7 +180,7 @@ function ldiCommand(tempState: computerStateType, command: string) {
   if (registerNumber === 7)
     throw new Error("Cannot load to register R7. It is reserved.");
 
-  const labelAddress = tempState.PC + parseInt(command.slice(7, 16), 2);
+  const labelAddress = tempState.PC + binStrToNumber(command.slice(7, 16));
   const effectiveAddress = tempState.Memory.find(
     (m) => m.addr === labelAddress
   )?.content;
@@ -214,7 +214,7 @@ function ldrCommand(tempState: computerStateType, command: string) {
   if (DR === 7) throw new Error("Cannot load to register R7. It is reserved.");
 
   const baseR = parseInt(command.slice(7, 10), 2);
-  const labelAddress = tempState.Rs[baseR] + parseInt(command.slice(10, 16), 2);
+  const labelAddress = tempState.Rs[baseR] + binStrToNumber(command.slice(10, 16));
   const label = tempState.Memory.find((m) => m.addr === labelAddress);
   if (!label) throw new Error("Label not found");
 
@@ -242,7 +242,7 @@ function leaCommand(tempState: computerStateType, command: string) {
   if (registerNumber === 7)
     throw new Error("Cannot load to register R7. It is reserved.");
 
-  const labelAddress = tempState.PC + parseInt(command.slice(7, 16), 2);
+  const labelAddress = tempState.PC + binStrToNumber(command.slice(7, 16));
 
   tempState.Rs[registerNumber] = labelAddress;
   tempState.PC++;
