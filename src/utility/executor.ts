@@ -252,7 +252,7 @@ function stCommand(tempState: computerStateType, command: string) {
   if (!command) return;
 
   const registerNumber = parseInt(command.slice(4, 7), 2);
-  const offset = parseInt(command.slice(7, 16), 2);
+  const offset = binStrToNumber(command.slice(7, 16));
   const labelAddress = tempState.PC + offset;
 
   tempState.MAR = labelAddress.toString(2).padStart(16, "0");
@@ -273,7 +273,7 @@ function stiCommand(tempState: computerStateType, command: string) {
   if (command === "") return;
 
   const registerNumber = parseInt(command.slice(4, 7), 2);
-  const labelAddress = tempState.PC + parseInt(command.slice(7, 16), 2);
+  const labelAddress = tempState.PC + binStrToNumber(command.slice(7, 16));
   const effectiveAddress = tempState.Memory.find(
     (m) => m.addr === labelAddress
   )?.content;
@@ -298,7 +298,7 @@ function strCommand(tempState: computerStateType, command: string) {
 
   const SR = parseInt(command.slice(4, 7), 2);
   const baseR = parseInt(command.slice(7, 10), 2);
-  const offset = parseInt(command.slice(10, 16), 2);
+  const offset = binStrToNumber(command.slice(10, 16));
   const labelAddress = tempState.Rs[baseR] + offset;
 
   tempState.MAR = labelAddress.toString(2).padStart(16, "0");
