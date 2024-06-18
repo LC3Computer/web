@@ -74,16 +74,18 @@ function andCommand(tempState: computerStateType, command: string) {
 
   const DR = parseInt(command.slice(4, 7), 2);
   const SR1 = parseInt(command.slice(7, 10), 2);
-
+  let result = undefined;
   if (command[10] === "0") {
     const SR2 = parseInt(command.slice(13, 16), 2);
-    tempState.Rs[DR] = tempState.Rs[SR1] & tempState.Rs[SR2];
+    result= tempState.Rs[SR1] & tempState.Rs[SR2];
+    tempState.Rs[DR] = result;
   } else {
-    const imm5 = parseInt(command.slice(11, 16), 2);
-    tempState.Rs[DR] = tempState.Rs[SR1] & (imm5 & 0x1f);
+    const imm5 = binStrToNumber(command.slice(11, 16));
+
+    result= tempState.Rs[SR1] & imm5;
+    tempState.Rs[DR] = result;
   }
 
-  const result = binStrToNumber(tempState.Rs[DR].toString(2));
 
   if (result === 0) {
     tempState.CC = { N: 0, Z: 1, P: 0 };
@@ -101,17 +103,18 @@ function addCommand(tempState: computerStateType, command: string) {
 
   const DR = parseInt(command.slice(4, 7), 2);
   const SR1 = parseInt(command.slice(7, 10), 2);
-
+  let result = undefined ;
   if (command[10] === "0") {
     const SR2 = parseInt(command.slice(13, 16), 2);
-    tempState.Rs[DR] = (tempState.Rs[SR1] + tempState.Rs[SR2]) & 0xffff;
+     result =  (tempState.Rs[SR1] + tempState.Rs[SR2]) 
+     tempState.Rs[DR]= result & 0xffff;
   } else {
-    const imm5 = parseInt(command.slice(11, 16), 2);
-    tempState.Rs[DR] = (tempState.Rs[SR1] + (imm5 & 0x1f)) & 0xffff;
+    const imm5 = binStrToNumber(command.slice(11, 16));
+    result = (tempState.Rs[SR1] + imm5) 
+    tempState.Rs[DR] = result & 0xffff;
   }
 
-  const result = binStrToNumber(tempState.Rs[DR].toString(2));
-
+  
   if (result === 0) {
     tempState.CC = { N: 0, Z: 1, P: 0 };
   } else if (result & 0x8000) {
@@ -128,9 +131,9 @@ function notCommand(tempState: computerStateType, command: string) {
   const DR = parseInt(command.slice(4, 7), 2);
   const SR = parseInt(command.slice(7, 10), 2);
 
-  tempState.Rs[DR] = ~tempState.Rs[SR] & 0xffff;
+  const result= tempState.Rs[SR]*-1;
+  tempState.Rs[DR] = result & 0xffff;
 
-  const result = binStrToNumber(tempState.Rs[DR].toString(2));
 
   if (result === 0) {
     tempState.CC = { N: 0, Z: 1, P: 0 };
