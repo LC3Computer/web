@@ -83,7 +83,7 @@ function andCommand(tempState: computerStateType, command: string) {
     tempState.Rs[DR] = tempState.Rs[SR1] & (imm5 & 0x1f);
   }
 
-  const result = tempState.Rs[DR];
+  const result = binStrToNumber(tempState.Rs[DR].toString(2));
 
   if (result === 0) {
     tempState.CC = { N: 0, Z: 1, P: 0 };
@@ -110,7 +110,7 @@ function addCommand(tempState: computerStateType, command: string) {
     tempState.Rs[DR] = (tempState.Rs[SR1] + (imm5 & 0x1f)) & 0xffff;
   }
 
-  const result = tempState.Rs[DR];
+  const result = binStrToNumber(tempState.Rs[DR].toString(2));
 
   if (result === 0) {
     tempState.CC = { N: 0, Z: 1, P: 0 };
@@ -130,7 +130,7 @@ function notCommand(tempState: computerStateType, command: string) {
 
   tempState.Rs[DR] = ~tempState.Rs[SR] & 0xffff;
 
-  const result = tempState.Rs[DR];
+  const result = binStrToNumber(tempState.Rs[DR].toString(2));
 
   if (result === 0) {
     tempState.CC = { N: 0, Z: 1, P: 0 };
