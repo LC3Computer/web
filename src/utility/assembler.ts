@@ -57,12 +57,12 @@ export function assembler(str: string): MachineCodeType[] {
   const labelTable: LabelTableType = {};
 
   codeArray.forEach((line, index) => {
-    const labelMatch = line.match(/^(\w+),/);
+    const labelMatch = line.match(/^(\w+)\s*,/);
     if (labelMatch) {
       const label = labelMatch[1];
       if (!INSTRUCTIONS_LIST.includes(label.toUpperCase())) {
         labelTable[label] = currentAddress;
-        codeArray[index] = line.slice(label.length + 1).trim();
+        codeArray[index] = line.slice(labelMatch[0].length).trim();
       }
     }
     if (line.startsWith("ORG")) {
