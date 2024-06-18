@@ -151,11 +151,11 @@ function ldCommand(tempState: computerStateType, command: string) {
 
   const registerNumber = parseInt(command.slice(4, 7), 2);
   if (registerNumber === 7)
-    throw new Error(`Cannot load to register R7 with address ${tempState.PC}. It is reserved.`);
+    throw new Error(`Cannot load to register R7 with address ${tempState.PC.toString(16)}. It is reserved.`);
 
   const labelAddress = tempState.PC + binStrToNumber(command.slice(7, 16));
   const label = tempState.Memory.find((m) => m.addr === labelAddress);
-  if (!label) throw new Error(`Label not found in LD with address ${tempState.PC} `);
+  if (!label) throw new Error(`Label not found in LD with address ${tempState.PC.toString(16)} `);
 
   tempState.MAR = labelAddress.toString(2).padStart(16, "0");
   tempState.MDR = label.content;
@@ -178,18 +178,18 @@ function ldiCommand(tempState: computerStateType, command: string) {
 
   const registerNumber = parseInt(command.slice(4, 7), 2);
   if (registerNumber === 7)
-    throw new Error(`Cannot load to register R7 with address ${tempState.PC}. It is reserved.`);
+    throw new Error(`Cannot load to register R7 with address ${tempState.PC.toString(16)}. It is reserved.`);
 
   const labelAddress = tempState.PC + binStrToNumber(command.slice(7, 16));
   const effectiveAddress = tempState.Memory.find(
     (m) => m.addr === labelAddress
   )?.content;
-  if (!effectiveAddress) throw new Error(`Effective address not found in LDI with address ${tempState.PC}`);
+  if (!effectiveAddress) throw new Error(`Effective address not found in LDI with address ${tempState.PC.toString(16)}`);
 
   const label = tempState.Memory.find(
     (m) => m.addr === parseInt(effectiveAddress, 2)
   );
-  if (!label) throw new Error(`Label not found in LDI with address ${tempState.PC}`);
+  if (!label) throw new Error(`Label not found in LDI with address ${tempState.PC.toString(16)}`);
 
   tempState.MAR = effectiveAddress.padStart(16, "0");
   tempState.MDR = label.content;
@@ -212,13 +212,13 @@ function ldrCommand(tempState: computerStateType, command: string) {
 
   const DR = parseInt(command.slice(4, 7), 2);
   if (DR === 7) 
-      throw new Error(`Cannot load to register R7 with address ${tempState.PC}. It is reserved.`);
+      throw new Error(`Cannot load to register R7 with address ${tempState.PC.toString(16)}. It is reserved.`);
 
 
   const baseR = parseInt(command.slice(7, 10), 2);
   const labelAddress = tempState.Rs[baseR] + binStrToNumber(command.slice(10, 16));
   const label = tempState.Memory.find((m) => m.addr === labelAddress);
-  if (!label) throw new Error(`Label not found in LDR with address ${tempState.PC}`);
+  if (!label) throw new Error(`Label not found in LDR with address ${tempState.PC.toString(16)}`);
 
   tempState.MAR = labelAddress.toString(2).padStart(16, "0");
   tempState.MDR = label.content;
@@ -242,7 +242,7 @@ function leaCommand(tempState: computerStateType, command: string) {
 
   const registerNumber = parseInt(command.slice(4, 7), 2);
   if (registerNumber === 7)
-    throw new Error(`Cannot load to register R7 with address ${tempState.PC}. It is reserved.`);
+    throw new Error(`Cannot load to register R7 with address ${tempState.PC.toString(16)}. It is reserved.`);
 
   const labelAddress = tempState.PC + binStrToNumber(command.slice(7, 16));
 
@@ -261,7 +261,7 @@ function stCommand(tempState: computerStateType, command: string) {
   const memoryIndex = tempState.Memory.findIndex(
     (m) => m.addr === labelAddress
   );
-  if (memoryIndex === -1) throw new Error(`Label not found in ST with address ${tempState.PC}`);
+  if (memoryIndex === -1) throw new Error(`Label not found in ST with address ${tempState.PC.toString(16)}`);
 
   const contentSR = tempState.Rs[registerNumber];
   const contentToStore = (contentSR & 0xffff).toString(2).padStart(16, "0");
@@ -279,12 +279,12 @@ function stiCommand(tempState: computerStateType, command: string) {
   const effectiveAddress = tempState.Memory.find(
     (m) => m.addr === labelAddress
   )?.content;
-  if (!effectiveAddress) throw new Error(`effective address not found in STI with address ${tempState.PC}`);
+  if (!effectiveAddress) throw new Error(`effective address not found in STI with address ${tempState.PC.toString(16)}`);
 
   const memoryIndex = tempState.Memory.findIndex(
     (m) => m.addr === parseInt(effectiveAddress, 2)
   );
-  if (memoryIndex == -1) throw new Error(`label not found in STI with address ${tempState.PC}`);
+  if (memoryIndex == -1) throw new Error(`label not found in STI with address ${tempState.PC.toString(16)}`);
 
   const contentDR = tempState.Rs[registerNumber];
   const contentToStore = (contentDR & 0xffff).toString(2).padStart(16, "0");
@@ -307,7 +307,7 @@ function strCommand(tempState: computerStateType, command: string) {
   const memoryIndex = tempState.Memory.findIndex(
     (m) => m.addr === labelAddress
   );
-  if (memoryIndex === -1) throw new Error(`Label not found in STR with address ${tempState.PC}`);
+  if (memoryIndex === -1) throw new Error(`Label not found in STR with address ${tempState.PC.toString(16)}`);
 
   const contentSR = tempState.Rs[SR];
   const contentToStore = (contentSR & 0xffff).toString(2).padStart(16, "0");
@@ -351,7 +351,7 @@ function jsrCommand(tempState: computerStateType, command: string) {
     const labelAddress = tempState.PC + offset11;
     console.log(labelAddress);
     const label = tempState.Memory.find((m) => m.addr === labelAddress);
-    if (!label) throw new Error(`Label not found in JSR with address ${tempState.PC}`);
+    if (!label) throw new Error(`Label not found in JSR with address ${tempState.PC.toString(16)}`);
 
     tempState.PC = labelAddress;
   } else {
@@ -374,6 +374,6 @@ function hltCommand(tempState: computerStateType) {
 
 function notFound(tempState: computerStateType, command: string) {
   throw new Error(
-    `Opcode ${command} in line with address ${tempState.PC} not recognized.`
+    `Opcode ${command} in line with address ${tempState.PC.toString(16)} not recognized.`
   );
 }
