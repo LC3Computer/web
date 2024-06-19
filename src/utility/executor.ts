@@ -349,7 +349,7 @@ function jsrCommand(tempState: computerStateType, command: string) {
 
   if (flag === "1") {
     const labelAddress = tempState.PC + offset11;
-    console.log(labelAddress);
+    //console.log(labelAddress);
     const label = tempState.Memory.find((m) => m.addr === labelAddress);
     if (!label) throw new Error(`Label not found in JSR with address ${tempState.PC.toString(16)}`);
 

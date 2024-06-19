@@ -1,5 +1,5 @@
 import { MachineCodeType } from "../utility/assembler";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { executeNext } from "../utility/executor";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
@@ -33,6 +33,9 @@ function MemoryTable({
 }) {
   const [modalOpen, setModalOpen] = useState(false);
 
+  const [computerState, setComputerState] =
+    useState<computerStateType>(initialComputerState);
+
   useEffect(() => {
     setComputerState(() => ({
       ...initialComputerState,
@@ -41,18 +44,12 @@ function MemoryTable({
     }));
   }, [machineCode]);
 
-  const [computerState, setComputerState] =
-    useState<computerStateType>(initialComputerState);
-
-  const prevPC = useRef(-1);
   useEffect(() => {
-    if (prevPC.current == -1 || prevPC.current == 0)
-      prevPC.current = computerState.PC;
-    else {
-      setCurrentLine((prev) => prev + (computerState.PC - prevPC.current));
-      prevPC.current = computerState.PC;
-    }
-  }, [computerState.PC, setCurrentLine]);
+    setCurrentLine(
+      computerState.Memory.find((mi) => mi.addr === computerState.PC)
+        ?.asmCodeLine ?? 1
+    );
+  }, [computerState.PC, setCurrentLine, computerState.Memory]);
 
   //console.log(computerState);
 

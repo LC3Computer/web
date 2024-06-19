@@ -1,7 +1,10 @@
 export type MachineCodeType = {
   addr: number;
   content: string;
+  asmCodeLine: number;
 };
+
+type machineCodeOmittedType = Omit<MachineCodeType, "asmCodeLine">;
 
 type LabelTableType = {
   [key: string]: number;
@@ -39,14 +42,20 @@ const validRegisters = ["R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7"];
 
 export function assembler(str: string): MachineCodeType[] {
   if (!str || !str.length) throw new Error("Code is Empty");
-  let codeArray = str.split("\n");
-  codeArray = codeArray.map((l) => l.trim());
+  let codeStrArray = str.split("\n");
+  codeStrArray = codeStrArray.map((l) => l.trim());
+
+  //add assembly code line number to codeArray for highlighting code
+  let codeArray = codeStrArray.map((l, i) => ({
+    lineStr: l,
+    lineNumber: i + 1,
+  }));
 
   codeArray = codeArray
-    .map((l) => l.replace(/;.*/, "").trim())
-    .filter((l) => l.length > 0);
+    .map((l) => ({ ...l, lineStr: l.lineStr.replace(/;.*/, "").trim() }))
+    .filter((l) => l.lineStr.length > 0);
 
-  if (!codeArray[0].match(/\bORG\b\s+x3000/i)) {
+  if (!codeArray[0].lineStr.match(/\bORG\b\s+x3000/i)) {
     throw new Error("The first line must be ORG x3000.");
   }
 
@@ -56,13 +65,14 @@ export function assembler(str: string): MachineCodeType[] {
   const machineCode: MachineCodeType[] = [];
   const labelTable: LabelTableType = {};
 
-  codeArray.forEach((line, index) => {
+  codeArray.forEach((lineCode, index) => {
+    const line = lineCode.lineStr;
     const labelMatch = line.match(/^(\w+)\s*,/);
     if (labelMatch) {
       const label = labelMatch[1];
       if (!INSTRUCTIONS_LIST.includes(label.toUpperCase())) {
         labelTable[label] = currentAddress;
-        codeArray[index] = line.slice(labelMatch[0].length).trim();
+        codeArray[index].lineStr = line.slice(labelMatch[0].length).trim();
       }
     }
     if (line.startsWith("ORG")) {
@@ -76,62 +86,102 @@ export function assembler(str: string): MachineCodeType[] {
   //console.log(labelTable);
   currentAddress = 0x3000;
 
-  codeArray.forEach((line) => {
+  codeArray.forEach((lineCode) => {
+    const line = lineCode.lineStr;
     if (line.startsWith("ORG")) {
       const newAddress = parseInt(line.replace(/[(ORG)xX]/g, ""), 16);
       currentAddress = newAddress;
     } else {
       if (line.startsWith("ADD")) {
         const instructionCode = processAdd(line, currentAddress);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("AND")) {
         const instructionCode = processAnd(line, currentAddress);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("NOT")) {
         const instructionCode = processNot(line, currentAddress);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("LDI")) {
         const instructionCode = processLdi(line, currentAddress, labelTable);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("LDR")) {
         const instructionCode = processLdr(line, currentAddress);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("LEA")) {
         const instructionCode = processLea(line, currentAddress, labelTable);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("LD")) {
         const instructionCode = processLd(line, currentAddress, labelTable);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("STI")) {
         const instructionCode = processSti(line, currentAddress, labelTable);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("STR")) {
         const instructionCode = processStr(line, currentAddress);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("ST")) {
         const instructionCode = processSt(line, currentAddress, labelTable);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("BR")) {
         const instructionCode = processBr(line, currentAddress, labelTable);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("JSR")) {
         const instructionCode = processJsr(line, currentAddress, labelTable);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("JMP")) {
         const instructionCode = processJmp(line, currentAddress);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
         currentAddress++;
       } else if (line.startsWith("RET")) {
         const remainder = line.slice(3).trim();
@@ -139,15 +189,27 @@ export function assembler(str: string): MachineCodeType[] {
           throw new Error("Unexpected characters after RET instruction");
         }
         const instructionCode = processRet(currentAddress);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
+
         currentAddress++;
       } else if (line.startsWith("DEC")) {
         const instructionCode = processDec(line, currentAddress);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
+
         currentAddress++;
       } else if (line.startsWith("HEX")) {
         const instructionCode = processHex(line, currentAddress);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
+
         currentAddress++;
       } else if (line.startsWith("HALT") || line.startsWith("HLT")) {
         const c = line.startsWith("HALT") ? 4 : 3;
@@ -159,14 +221,18 @@ export function assembler(str: string): MachineCodeType[] {
         }
 
         const instructionCode = processHlt(currentAddress);
-        machineCode.push(instructionCode);
+        machineCode.push({
+          ...instructionCode,
+          asmCodeLine: lineCode.lineNumber,
+        });
+
         currentAddress++;
       }
     }
   });
 
-  codeArray = codeArray.filter((line) => !line.startsWith("ORG"));
-  codeArray = codeArray.filter((line) => !line.startsWith("END"));
+  codeArray = codeArray.filter((line) => !line.lineStr.startsWith("ORG"));
+  codeArray = codeArray.filter((line) => !line.lineStr.startsWith("END"));
   //console.log(codeArray);
   //console.log(machineCode);
 
@@ -176,7 +242,7 @@ export function assembler(str: string): MachineCodeType[] {
 function processAdd(
   instruction: string,
   currentAddress: number
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("ADD", "").trim();
 
   const parts = instruction.split(",");
@@ -234,7 +300,7 @@ function processAdd(
 function processAnd(
   instruction: string,
   currentAddress: number
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("AND", "").trim();
 
   const parts = instruction.split(",");
@@ -292,7 +358,7 @@ function processAnd(
 function processNot(
   instruction: string,
   currentAddress: number
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("NOT", "").trim();
 
   const parts = instruction.split(",");
@@ -316,7 +382,7 @@ function processNot(
 function processStr(
   instruction: string,
   currentAddress: number
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("STR", "").trim();
 
   const parts = instruction.split(",");
@@ -356,7 +422,7 @@ function processStr(
 function processLdr(
   instruction: string,
   currentAddress: number
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("LDR", "").trim();
 
   const parts = instruction.split(",");
@@ -396,7 +462,7 @@ function processLdr(
 function processJmp(
   instruction: string,
   currentAddress: number
-): MachineCodeType {
+): machineCodeOmittedType {
   if (!validRegisters.includes(instruction.slice(4).trim())) {
     throw new Error("Invalid register specified in JMP");
   }
@@ -409,7 +475,7 @@ function processJmp(
   return { addr: currentAddress, content: content };
 }
 
-function processRet(currentAddress: number): MachineCodeType {
+function processRet(currentAddress: number): machineCodeOmittedType {
   const content = `1100000111000000`;
   return { addr: currentAddress, content: content };
 }
@@ -418,7 +484,7 @@ function processLd(
   instruction: string,
   currentAddress: number,
   labelAddressMap: LabelTableType
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("LD", "").trim();
 
   const parts = instruction.split(",");
@@ -447,7 +513,7 @@ function processLdi(
   instruction: string,
   currentAddress: number,
   labelAddressMap: LabelTableType
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("LDI", "").trim();
 
   const parts = instruction.split(",");
@@ -476,7 +542,7 @@ function processLea(
   instruction: string,
   currentAddress: number,
   labelAddressMap: LabelTableType
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("LEA", "").trim();
 
   const parts = instruction.split(",");
@@ -505,7 +571,7 @@ function processSt(
   instruction: string,
   currentAddress: number,
   labelAddressMap: LabelTableType
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("ST", "").trim();
 
   const parts = instruction.split(",");
@@ -534,7 +600,7 @@ function processSti(
   instruction: string,
   currentAddress: number,
   labelAddressMap: LabelTableType
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("STI", "").trim();
 
   const parts = instruction.split(",");
@@ -563,7 +629,7 @@ function processBr(
   instruction: string,
   currentAddress: number,
   labelAddressMap: LabelTableType
-): MachineCodeType {
+): machineCodeOmittedType {
   const match = instruction.match(/^BR([nzp]*)\s+(\w+)/);
   if (!match) {
     throw new Error("Invalid BR instruction format.");
@@ -592,7 +658,7 @@ function processJsr(
   instruction: string,
   currentAddress: number,
   labelAddressMap: LabelTableType
-): MachineCodeType {
+): machineCodeOmittedType {
   if (instruction.startsWith("JSRR")) {
     if (!validRegisters.includes(instruction.slice(4).trim())) {
       throw new Error("Invalid register specified in JSRR");
@@ -617,7 +683,7 @@ function processJsr(
 function processDec(
   instruction: string,
   currentAddress: number
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("DEC", "").trim();
   const imm = parseInt(instruction, 10);
   const content = (imm & 0xffff).toString(2).padStart(16, "0");
@@ -627,14 +693,14 @@ function processDec(
 function processHex(
   instruction: string,
   currentAddress: number
-): MachineCodeType {
+): machineCodeOmittedType {
   instruction = instruction.replace("HEX", "").trim();
   const imm = parseInt(instruction, 16);
   const content = (imm & 0xffff).toString(2).padStart(16, "0");
   return { addr: currentAddress, content: content };
 }
 
-function processHlt(currentAddress: number): MachineCodeType {
+function processHlt(currentAddress: number): machineCodeOmittedType {
   const content = "1101000000000000";
   return { addr: currentAddress, content: content };
 }
