@@ -14,11 +14,12 @@ function AsmOutput({
   codeArray = codeArray.map((l) => l.trim());
   let lineCount = 1;
   const currentP = useRef<HTMLParagraphElement | null>(null);
+  const containterRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    if (currentP.current)
-      currentP.current.scrollIntoView({
+    if (currentP.current && containterRef.current)      
+      containterRef.current.scroll({
+        top: currentP.current.offsetTop - 3 * currentP.current.clientHeight,
         behavior: "smooth",
-        block: "center",
       });
   }, [currentLine]);
 
@@ -37,7 +38,7 @@ function AsmOutput({
   };
 
   return (
-    <div className="w-full h-full border-2 border-gray-300 p-2 rounded-lg shadow-lg overflow-y-auto">
+    <div className="w-full h-full border-2 border-gray-300 p-2 rounded-lg shadow-lg overflow-y-auto" ref={containterRef}>
       {codeArray.map((line, i) => {
         if (line === "") return null;
         return (

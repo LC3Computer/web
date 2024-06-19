@@ -47,8 +47,8 @@ function MemoryTable({
   }, [machineCode]);
 
   useEffect(() => {
-    if (currentRow.current)
-      containterRef.current?.scroll({
+    if (currentRow.current && containterRef.current)
+      containterRef.current.scroll({
         top: currentRow.current.rowIndex * currentRow.current.clientHeight,
         behavior: "smooth",
       });
