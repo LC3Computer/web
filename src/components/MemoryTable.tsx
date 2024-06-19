@@ -35,14 +35,9 @@ function MemoryTable({
 
   useEffect(() => {
     setComputerState(() => ({
-      Memory: machineCode,
+      ...initialComputerState,
+      Memory: machineCode.sort((a, b) => a.addr - b.addr),
       PC: machineCode[0] ? machineCode[0].addr : 0,
-      Rs: [0, 0, 0, 0, 0, 0, 0, 0],
-      CC: { N: 0, Z: 0, P: 0 },
-      IR: "",
-      MDR: "",
-      MAR: "",
-      halted: false,
     }));
   }, [machineCode]);
 
