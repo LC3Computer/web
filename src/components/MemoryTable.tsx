@@ -1,5 +1,5 @@
 import { MachineCodeType } from "../utility/assembler";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { executeNext } from "../utility/executor";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
@@ -36,6 +36,8 @@ function MemoryTable({
   const [computerState, setComputerState] =
     useState<computerStateType>(initialComputerState);
 
+  const currentRow = useRef<HTMLTableRowElement | null>(null);
+  const containterRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     setComputerState(() => ({
       ...initialComputerState,
@@ -45,6 +47,11 @@ function MemoryTable({
   }, [machineCode]);
 
   useEffect(() => {
+    if (currentRow.current)
+      containterRef.current?.scroll({
+        top: currentRow.current.rowIndex * currentRow.current.clientHeight,
+        behavior: "smooth",
+      });
     setCurrentLine(
       computerState.Memory.find((mi) => mi.addr === computerState.PC)
         ?.asmCodeLine ?? 1
@@ -57,7 +64,10 @@ function MemoryTable({
     <>
       <Modal open={modalOpen} setOpen={setModalOpen} state={computerState} />
       <div className="lg:pl-5 pl-0 pt-3 h-full flex flex-col">
-        <div className="overflow-y-auto h-full relative overflow-x-auto  shadow-md sm:rounded-lg">
+        <div
+          className="h-full relative overflow-y-auto overflow-x-auto shadow-md sm:rounded-lg"
+          ref={containterRef}
+        >
           <table className="w-full text-sm text-left text-gray-500">
             <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-white ">
               Memory Table
@@ -94,6 +104,7 @@ function MemoryTable({
                     return (
                       <tr
                         key={line.addr}
+                        ref={line.addr === computerState.PC ? currentRow : null}
                         className={`bg-white border-b even:bg-gray-100 ${
                           line.addr === computerState.PC &&
                           "!bg-sky-800 !text-white"

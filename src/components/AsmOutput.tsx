@@ -18,8 +18,7 @@ function AsmOutput({
     if (currentP.current)
       currentP.current.scrollIntoView({
         behavior: "smooth",
-        block: "end",
-        inline: "nearest",
+        block: "center",
       });
   }, [currentLine]);
 
