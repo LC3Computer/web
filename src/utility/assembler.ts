@@ -66,7 +66,7 @@ export function assembler(str: string): MachineCodeType[] {
       }
     }
     if (line.startsWith("ORG")) {
-      const newAddress = parseInt(line.replace(/\D/g, ""), 16);
+      const newAddress = parseInt(line.replace(/[(ORG)xX]/g, ""), 16);
       currentAddress = newAddress;
     } else if (line.length > 0 && !line.startsWith("END")) {
       currentAddress++;
@@ -78,7 +78,7 @@ export function assembler(str: string): MachineCodeType[] {
 
   codeArray.forEach((line) => {
     if (line.startsWith("ORG")) {
-      const newAddress = parseInt(line.replace(/\D/g, ""), 16);
+      const newAddress = parseInt(line.replace(/[(ORG)xX]/g, ""), 16);
       currentAddress = newAddress;
     } else {
       if (line.startsWith("ADD")) {
